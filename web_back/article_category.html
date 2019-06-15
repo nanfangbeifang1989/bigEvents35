@@ -140,8 +140,8 @@
             <td>{{$value.name}}</td>
             <td>{{$value.slug}}</td>
             <td class="text-center">
-                <a href='javascript:editTr({"id":"1","slug":"uncategorized","name":"未分类"});' class="btn btn-info btn-xs">编辑</a>
-                <a href="javascript:deleteTr( {{$value.id}} );" class="btn btn-danger btn-xs">删除</a>
+                <a href="javascript:void(0);" data-id="{{$value.id}}" class="btn btn-info btn-xs">编辑</a>
+                <a href="javascript:void(0);" data-id="{{$value.id}}" class="btn btn-danger btn-xs btn-delete">删除</a>
             </td>
         </tr>
         {{/each}}
@@ -153,17 +153,34 @@
     <script>
 
         $(function () {
-            $.ajax({
-                type: 'get',
-                url: 'http://localhost:8000/admin/category_search',
-                success: function (backData) {
-                    console.log(backData);
-                    // 使用模板引擎
-                    // 调用模板方法
-                    var resHtml = template('tmp_cate', backData);
-                    $('tbody').html(resHtml);
-                }
-            });
+
+            // 文章类别获取
+            // 由于后面多次需要获取文章类别,因此需要封装成函数,以方便后续调用
+            function getCategory() {
+                /*
+              获取文章分类信息
+              步骤
+              1. 进入页面之后
+              2. 通过ajax获取数据
+              3. 数据获取到之后渲染到页面上
+              1. 结合模板引擎来渲染
+            */
+                $.ajax({
+                    type: 'get',
+                    url: 'http://localhost:8000/admin/category_search',
+                    success: function (backData) {
+                        console.log(backData);
+                        // 使用模板引擎
+                        // 调用模板方法
+                        var resHtml = template('tmp_cate', backData);
+                        $('tbody').html(resHtml);
+                    }
+                });
+            }
+
+            // 页面一开始就要调用一下getCategory()方法
+            getCategory();
+
 
             // 点击新增分类那个模态框中的新增按钮,获取用户输入的文章名字和类型,发送ajax请求,添加一个文章分类
             $('#model_add').on('click', function () {
@@ -201,6 +218,43 @@
 
             });
 
+
+
+            // 删除文章类别
+            // 步骤
+            // 1.确定用id来删除,在模板中把a标签触发js事件去掉,改为javascript:viod(0),再自定义一个id为data-id,这个id是通过一个自定义属性存在了a标签中
+            // 2.给删除按钮设置点击事件,但由于这个a标签所在的tr是通过模板引擎动态生成的,所以使用事件委托的方式来注册点击事件(这里要给表示删除的a标签加一个类为btn-delete,以方便找到)
+            // 3.发送ajax请求,删除对应id的数据
+            $('tbody').on('click', 'a.btn-delete', function () {
+
+                var that = $(this); // 把当前这个点击的a标签给存起来
+
+                // 1.首先获取一下这个a标签的自定义属性data-id里面存放的值(就是要删除的这一条数据的id)
+                var id = $(this).attr('data-id');
+                console.log(id);
+                // 2.发送ajax请求
+                $.ajax({
+                    type: 'post',
+                    url: 'http://localhost:8000/admin/category_delete',
+                    data: {
+                        id: id
+                    },
+                    success: function (backData) {
+                        // console.log(backData);
+                        // 做判断,如果code等于200说明删除成功
+                        // 删除后,还需要动态在页面进行删除,这里有两种思路
+                        //  思路1:删除成功后,重新渲染最新数据,即立即再重新的获取一次文章类别的数据并动态同步更新显示在页面中(这个方法有缺点:如果数据量很大,重新渲染会很消耗时间,效率低)
+                        // 思路2: 删除成功后,后台数据可知已经删除,页面中直接把这一行从dom树中移除即可
+                        if (backData.code == 200) {
+                            // 方法1 调用获取文章类别的函数
+                            // getCategory();
+                            // 方法2 把tr从dom树种移除
+                            // 由于success这个方法是属于window的,这里不能直接使用this,需要在前面把当前这个点击的a标签给存起来
+                            that.parent().parent().remove();
+                        }
+                    }
+                });
+            });
 
 
 
