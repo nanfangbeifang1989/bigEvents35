@@ -73,7 +73,7 @@
                 <tfoot>
                     <tr>
                         <td colspan="3" class="text-center">
-                            <a href="#" class="btn btn-success" data-toggle="modal" data-target="#addModal">新增分类</a>
+                            <a href="#" class="btn btn-success" data-toggle="modal" data-target="#addModal" id="addCategory">新增分类</a>
                         </td>
                     </tr>
                 </tfoot>
@@ -81,6 +81,7 @@
         </div>
     </div>
 
+    <!-- bootstrap模态框 -->
     <div class="modal fade" id="addModal">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -119,17 +120,18 @@
             $('#addModal').modal('hide');
         });
 
-        $('#model_add').click(function () {
-            alert('add');
-            $('#addModal').modal('hide');
-        });
+        // $('#model_add').click(function () {
+        //     alert('add');
+        //     $('#addModal').modal('hide');
+        // });
 
-        $('.category_table').delegate('a', 'click', function () {
-            if ($(this).hasClass('btn-info')) {
-                $('#addModal .modal-title').html('修改分类名称');
-                $('#addModal').modal('show');
-            }
-        })      
+        // 把这部分生成模态框的代码拿掉 delegate已经过时,不使用
+        // $('.category_table').delegate('a', 'click', function () {
+        //     if ($(this).hasClass('btn-info')) {
+        //         $('#addModal .modal-title').html('修改分类名称');
+        //         $('#addModal').modal('show');
+        //     }
+        // })      
     </script>
 
 
@@ -140,7 +142,7 @@
             <td>{{$value.name}}</td>
             <td>{{$value.slug}}</td>
             <td class="text-center">
-                <a href="javascript:void(0);" data-id="{{$value.id}}" class="btn btn-info btn-xs">编辑</a>
+                <a href="javascript:void(0);" data-id="{{$value.id}}" class="btn btn-info btn-xs btn-edit">编辑</a>
                 <a href="javascript:void(0);" data-id="{{$value.id}}" class="btn btn-danger btn-xs btn-delete">删除</a>
             </td>
         </tr>
@@ -199,24 +201,80 @@
                         console.log(backData);
                         // 在新增内容的同时需要立即同时将增加的内容渲染到页面去
                         // 即新增成功后,重新加载一次类别数据,重新渲染到页面
-                        $.ajax({
-                            type: 'get',
-                            url: 'http://localhost:8000/admin/category_search',
-                            success: function (backData) {
-                                console.log(backData);
-                                // 使用模板引擎
-                                // 调用模板方法
-                                var resHtml = template('tmp_cate', backData);
-                                $('tbody').html(resHtml);
-                            }
-                        });
-
+                        // $.ajax({
+                        //     type: 'get',
+                        //     url: 'http://localhost:8000/admin/category_search',
+                        //     success: function (backData) {
+                        //         console.log(backData);
+                        //         // 使用模板引擎
+                        //         // 调用模板方法
+                        //         var resHtml = template('tmp_cate', backData);
+                        //         $('tbody').html(resHtml);
+                        //     }
+                        // });
+                        // 直接调用getCategory()方法
+                        getCategory();
                     }
-
-
                 });
+                // 隐藏模态框
+                $('#addModal').modal('hide');
+            });
+
+
+
+            // 点击新增分类按钮,把模态框还原
+            $('#addCategory').on('click',function(){
+                $('#addModal .modal-title').html('新增分类');
+                $('#model_add').text('新增').removeClass('btn-success');
+            });
+
+
+
+
+
+            // 编辑文章类别
+            // 步骤
+            // 1.给编辑按钮委托注册的方式设置点击事件(因为编辑按钮也是根据模板引擎动态生成的)
+            $('tbody').on('click','a.btn-edit',function(){
+                // 1.1 修改模态框中这一条数据的名称和slug别名,然后显示在模态框中
+                // 因此要去找到模态框这部分的代码
+            
+                $('#addModal .modal-title').html('修改分类');
+                // 把新增的按钮修改为保存,同时去bootstrap的样式文档中找一个类,更改按钮的颜色
+                $('#model_add').text('保存').addClass('btn-success');
+                $('#addModal').modal('show');
+            
+                // 这里给模态框做了更改,接着要去页面新增分类那个按钮还原回来,一点击就还原
+
+
+
+
 
             });
+
+
+     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
