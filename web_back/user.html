@@ -86,6 +86,7 @@
                     console.log(backData);
                     
                     for(var key in backData.data){
+                         // 给每个input加一个类,这个类对应backData的键,以方便循环渲染
                         $('input.' + key).val(backData.data[key]);
                     }
                     $('img.user_pic').attr('src',backData.data.user_pic);
@@ -109,7 +110,7 @@
                 e.preventDefault();
 
                 // 新建一个formData对象
-                // 要注意的是表单input标签一定要与name属性跟接口文档的请求参数对应起来,这些请求参数使用formData提交
+                // 要注意的是表单input标签一定要将name属性跟接口文档的请求参数对应起来,这些请求参数使用formData提交
                 var formData = new FormData($('.article_form')[0]);  // 创建formData一定要是一个dom表单对象
 
                 // 发送ajax

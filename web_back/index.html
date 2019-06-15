@@ -134,6 +134,16 @@
     <script src="./js/bootstrap/js/bootstrap.min.js"></script>
     <script>
         $(function () {
+
+            // 功能一
+            /*
+               步骤:
+               1.给退出的a标签设置一个单击事件.
+                    注意:取消a标签的默认跳转
+               2.发送ajax请求,请求数据接口返回数据
+                   如果成功就跳转到登录页login.html
+               */
+
             // 给a标签注册单击事件,取消a的默认跳转
             $('#btn_logout').on('click', function (e) {
                 e.preventDefault();
@@ -155,36 +165,41 @@
                 });
             });
 
+            // 功能二
+            /*
+           获取用户信息
+           步骤:
+               1. 进入到首页之后
+               2. 通过用户信息接口获取用户的数据
+               3. 渲染到页面上
+
+           */
+
+            // 页面一进来就使用本地接口,获取用户信息(用户昵称和头像),分别将数据渲染到左边和右边
+            $.ajax({
+                type: 'get',
+                url: 'http://localhost:8000/admin/getuser',
+                success: function (backData) {
+                    console.log(backData);
+                    // 渲染左边
+                    $('.user_info>img').attr('src', backData.data.user_pic);
+                    $('.user_info>span>b').text(backData.data.nickname);
+                    // 渲染右边
+                    $('.user_center_link>img').attr('src', backData.data.user_pic);
+
+                }
+            });
 
         });
 
-/*
-            步骤:
-            1.给退出的a标签设置一个单击事件.
-                 注意:取消a标签的默认跳转
-            2.发送ajax请求,请求数据接口返回数据
-                如果成功就跳转到登录页login.html
-            */
 
 
 
-        // 页面一进来就使用本地接口,获取用户信息(用户昵称和头像),分别将数据渲染到左边和右边
-        $.ajax({
-            type:'get',
-            url:'http://localhost:8000/admin/getuser',
-            success:function(backData){
-                console.log(backData);
-                // 渲染左边
-                $('.user_info>img').attr('src',backData.data.user_pic);
-                $('.user_info>span').text(backData.data.nickname);
-                // 渲染右边
-                $('.user_center_link>img').attr('src',backData.data.user_pic);
-             
-            }
-        });
 
 
- 
+
+
+
 
     </script>
 
