@@ -222,7 +222,7 @@
 
 
 
-            // 1.2 点击新增分类按钮,把模态框还原
+            // 点击新增分类按钮,把模态框还原
             $('#addCategory').on('click',function(){
                 $('#addModal .modal-title').html('新增分类');
                 $('#model_add').text('新增').removeClass('btn-success');
@@ -234,28 +234,13 @@
 
             // 编辑文章类别
             // 步骤
-            // 步骤1.给编辑按钮委托注册的方式设置点击事件(因为编辑按钮也是根据模板引擎动态生成的)
+            // 1.给编辑按钮委托注册的方式设置点击事件(因为编辑按钮也是根据模板引擎动态生成的)
             $('tbody').on('click','a.btn-edit',function(){
-
-                // 步骤2. 点击编辑按钮时,把要修改的这一条数据的名称和slug别名获取,然后显示在模态框中
-                // 2.1 获取
-                var categorySlug = $(this).parent().prev().text();
-                var categoryName = $(this).parent().prev().prev().text();
-                // console.log(categorySlug + " : " + categoryName);
-                // 2.2 渲染到模态框中
-                $('#recipient-name1').val(categoryName);
-                $('#recipient-name2').val(categorySlug);
-
-                
-
-
-
-
-                // 1.1 修改模态框样式
+                // 1.1 修改模态框中这一条数据的名称和slug别名,然后显示在模态框中
                 // 因此要去找到模态框这部分的代码
             
                 $('#addModal .modal-title').html('修改分类');
-                // 更改文字内容,同时去bootstrap的样式文档中找一个类,更改按钮的颜色
+                // 把新增的按钮修改为保存,同时去bootstrap的样式文档中找一个类,更改按钮的颜色
                 $('#model_add').text('保存').addClass('btn-success');
                 $('#addModal').modal('show');
             
