@@ -73,7 +73,8 @@
                 <tfoot>
                     <tr>
                         <td colspan="3" class="text-center">
-                            <a href="#" class="btn btn-success" data-toggle="modal" data-target="#addModal" id="addCategory">新增分类</a>
+                            <a href="#" class="btn btn-success" data-toggle="modal" data-target="#addModal"
+                                id="addCategory">新增分类</a>
                         </td>
                     </tr>
                 </tfoot>
@@ -91,13 +92,15 @@
                 </div>
                 <div class="modal-body">
                     <form>
+                        <!-- 新增一个input标签,用来存放编辑用的id,input标签的type为hidden就是隐藏域 -->
+                        <input type="hidden" name="id">
                         <div class="form-group">
                             <label for="recipient-name" class="control-label">分类名称:</label>
-                            <input type="text" class="form-control" id="recipient-name1">
+                            <input type="text" name="name" class="form-control" id="recipient-name1">
                         </div>
                         <div class="form-group">
                             <label for="message-text" class="control-label">分类别名:</label>
-                            <input type="text" class="form-control" id="recipient-name2">
+                            <input type="text" name="slug" class="form-control" id="recipient-name2">
                         </div>
                     </form>
                 </div>
@@ -186,36 +189,75 @@
 
             // 点击新增分类那个模态框中的新增按钮,获取用户输入的文章名字和类型,发送ajax请求,添加一个文章分类
             $('#model_add').on('click', function () {
-                // 获取用户需要新增的类别名字和别名
-                var name = $('#recipient-name1').val();
-                var slug = $('#recipient-name2').val();
+                // 步骤3.点击编辑按钮的模态框里的保存按钮,数据会直接跑到新增那里去,用判断来解决
+                // 判断这个按钮是不是保存按钮
+                if ($(this).hasClass('btn-success')) {
+                    // 获取用户修改之后的名称和别名,然后发送ajax请求,去修改
+                    // var name = $('form input[name="name"]').val();  // 属性选择器,form的后代input的属性为name
+                    // var slug = $('form input[name="slug"]').val();
+                    // var id = $('form input[name="id"]').val();
 
-                $.ajax({
-                    type: 'post',
-                    url: 'http://localhost:8000/admin/category_add',
-                    data: {
-                        name: name,
-                        slug: slug
-                    },
-                    success: function (backData) {
-                        console.log(backData);
-                        // 在新增内容的同时需要立即同时将增加的内容渲染到页面去
-                        // 即新增成功后,重新加载一次类别数据,重新渲染到页面
-                        // $.ajax({
-                        //     type: 'get',
-                        //     url: 'http://localhost:8000/admin/category_search',
-                        //     success: function (backData) {
-                        //         console.log(backData);
-                        //         // 使用模板引擎
-                        //         // 调用模板方法
-                        //         var resHtml = template('tmp_cate', backData);
-                        //         $('tbody').html(resHtml);
-                        //     }
-                        // });
-                        // 直接调用getCategory()方法
-                        getCategory();
-                    }
-                });
+                    // 使用serialize()一次性获取form表单的数据
+                     //这个方法是jQuery的方法,可以把form表单中的带有name属性的标签的值获取到.
+                    //获取到后组成一个字符串: name1=value1&name2=value2 这种格式字符串
+                    var data = $('form').serialize();
+
+                    // 发送ajax请求
+                    $.ajax({
+                        type:'post',
+                        url:'http://localhost:8000/admin/category_edit',
+                        // data:{
+                        //     id:id,
+                        //     name:name,
+                        //     slug:slug
+                        // },
+                        data:data,
+                        success:function(backData){
+                            console.log(backData);
+                            // 修改成功后,再次调用 getCategory(),实现动态数据添加到页面
+                            getCategory();
+
+                            // 将模态框中的input文本内容清空
+                            $('form input[name="name"]').val(''); 
+                            $('form input[name="slug"]').val('');
+                            $('form input[name="id"]').val('');
+                        }
+                    });
+                    
+                } else {
+                    // 如果这个按钮是新增按钮
+
+                    // 获取用户需要新增的类别名字和别名
+                    var name = $('#recipient-name1').val();
+                    var slug = $('#recipient-name2').val();
+
+                    $.ajax({
+                        type: 'post',
+                        url: 'http://localhost:8000/admin/category_add',
+                        data: {
+                            name: name,
+                            slug: slug
+                        },
+                        success: function (backData) {
+                            console.log(backData);
+                            // 在新增内容的同时需要立即同时将增加的内容渲染到页面去
+                            // 即新增成功后,重新加载一次类别数据,重新渲染到页面
+                            // $.ajax({
+                            //     type: 'get',
+                            //     url: 'http://localhost:8000/admin/category_search',
+                            //     success: function (backData) {
+                            //         console.log(backData);
+                            //         // 使用模板引擎
+                            //         // 调用模板方法
+                            //         var resHtml = template('tmp_cate', backData);
+                            //         $('tbody').html(resHtml);
+                            //     }
+                            // });
+                            // 直接调用getCategory()方法
+                            getCategory();
+                        }
+                    });
+                }
                 // 隐藏模态框
                 $('#addModal').modal('hide');
             });
@@ -223,7 +265,7 @@
 
 
             // 1.2 点击新增分类按钮,把模态框还原
-            $('#addCategory').on('click',function(){
+            $('#addCategory').on('click', function () {
                 $('#addModal .modal-title').html('新增分类');
                 $('#model_add').text('新增').removeClass('btn-success');
             });
@@ -235,7 +277,12 @@
             // 编辑文章类别
             // 步骤
             // 步骤1.给编辑按钮委托注册的方式设置点击事件(因为编辑按钮也是根据模板引擎动态生成的)
-            $('tbody').on('click','a.btn-edit',function(){
+            $('tbody').on('click', 'a.btn-edit', function () {
+
+
+                // 点击编辑按钮,获取到这个编辑按钮里用自定义属性data-id保存的id
+                var editId = $(this).attr('data-id');
+
 
                 // 步骤2. 点击编辑按钮时,把要修改的这一条数据的名称和slug别名获取,然后显示在模态框中
                 // 2.1 获取
@@ -246,47 +293,25 @@
                 $('#recipient-name1').val(categoryName);
                 $('#recipient-name2').val(categorySlug);
 
-                
+
+                // 拿到编辑按钮的id后,去模态框新增一个input,把id放到这个input中
+                $('form input[name="id"]').val(editId);
 
 
 
 
-                // 1.1 修改模态框样式
-                // 因此要去找到模态框这部分的代码
-            
+
+                // 1.1 修改模态框样式(按钮名字 模态框标题 按钮颜色)
+                // 要去找到模态框这部分的代码
+
                 $('#addModal .modal-title').html('修改分类');
                 // 更改文字内容,同时去bootstrap的样式文档中找一个类,更改按钮的颜色
                 $('#model_add').text('保存').addClass('btn-success');
                 $('#addModal').modal('show');
-            
+
                 // 这里给模态框做了更改,接着要去页面新增分类那个按钮还原回来,一点击就还原
 
-
-
-
-
             });
-
-
-     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
