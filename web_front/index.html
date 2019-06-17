@@ -221,6 +221,29 @@
         <p>电话：0755-****888    粤ICP备*******8号</p>
     </div>
 
+    <script src="./js/jquery-1.12.4.min.js"></script>
+    <script>
+        $(function(){
+            $.ajax({
+                type:'get',
+                url:'http://localhost:8000/admin/search',
+                data:{
+                    type:'',
+                    state:'',
+                    page:1,
+                    perpage:5
+                },
+                success:function(backData){
+                    console.log(backData);
+                    
+                }
+
+            });
+
+
+        });
+    
+    </script>
 </body>
 
 </html>
